@@ -69,7 +69,7 @@ class NvidiaConfig:
 @dataclass
 class GenerationConfig:
     """Configuration for Gemini fallback generation."""
-    model_name: str = "gemini-3.5-flash"
+    model_name: str = "gemini-1.5-flash"
     temperature: float = 0.1
     max_output_tokens: int = 2048
     top_p: float = 0.95
