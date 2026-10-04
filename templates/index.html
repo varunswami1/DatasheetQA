@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DatasheetQA — AI-Powered Datasheet Intelligence</title>
+    <meta name="description" content="Upload solar and inverter datasheets, ask questions in plain English, and get AI-powered answers with page citations.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- ── Header ──────────────────────────────────────── -->
+    <header id="app-header">
+        <div class="header-left">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+            </div>
+            <div class="logo-text">
+                <h1>Datasheet<span class="accent">QA</span></h1>
+                <span class="logo-subtitle">AI-Powered Datasheet Intelligence</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <span id="header-status" class="header-status">
+                <span class="status-dot"></span>
+                No documents loaded
+            </span>
+        </div>
+    </header>
+
+    <!-- ── Main Layout ─────────────────────────────────── -->
+    <main id="app-main">
+
+        <!-- ── Sidebar ─────────────────────────────────── -->
+        <aside id="sidebar">
+            <!-- Upload Section -->
+            <section class="sidebar-section">
+                <h2 class="section-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    Upload Datasheets
+                </h2>
+                <div id="drop-zone" class="drop-zone">
+                    <div class="drop-zone-content">
+                        <div class="drop-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="12" y1="8" x2="12" y2="16"/>
+                                <line x1="8" y1="12" x2="16" y2="12"/>
+                            </svg>
+                        </div>
+                        <p class="drop-text">Drop PDF datasheets here</p>
+                        <span class="drop-hint">or click to browse</span>
+                    </div>
+                    <input type="file" id="file-input" accept=".pdf" multiple hidden>
+                </div>
+                <div id="upload-status" class="upload-status hidden"></div>
+            </section>
+
+            <!-- Indexed Documents Section -->
+            <section class="sidebar-section">
+                <h2 class="section-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Indexed Documents
+                </h2>
+                <div id="document-list" class="document-list">
+                    <p class="empty-state">No documents uploaded yet</p>
+                </div>
+                <button id="btn-clear-all" class="btn btn-clear">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    Clear All
+                </button>
+            </section>
+
+            <!-- How It Works -->
+            <section class="sidebar-section how-it-works">
+                <h3 class="how-title">How it works</h3>
+                <ol class="how-list">
+                    <li>Upload solar/inverter datasheets (PDF)</li>
+                    <li>Ask questions in plain English</li>
+                    <li>Get precise answers with page citations</li>
+                </ol>
+            </section>
+        </aside>
+
+        <!-- ── Content Area ────────────────────────────── -->
+        <section id="content-area">
+
+            <!-- Chat Messages -->
+            <div id="chat-messages" class="chat-messages">
+                <!-- Welcome Screen -->
+                <div id="welcome-screen" class="welcome-screen">
+                    <div class="welcome-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="44" height="44">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                    </div>
+                    <h2 class="welcome-title">Ask your datasheets anything</h2>
+                    <p class="welcome-desc">Upload solar panel, inverter, or battery datasheets and ask questions.<br>Get precise, cited answers grounded in your documents.</p>
+                    <div class="hint-chips">
+                        <button class="hint-chip" data-question="What is the maximum system voltage?">Max system voltage?</button>
+                        <button class="hint-chip" data-question="What is the temperature coefficient of Pmax?">Temp coefficient of Pmax?</button>
+                        <button class="hint-chip" data-question="What is the module efficiency at STC?">Module efficiency at STC?</button>
+                        <button class="hint-chip" data-question="Compare Voc across all uploaded panels">Compare Voc across panels</button>
+                        <button class="hint-chip" data-question="What certifications does this product have?">Certifications?</button>
+                        <button class="hint-chip" data-question="What is the warranty period?">Warranty period?</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Bar -->
+            <div id="input-bar" class="input-bar">
+                <div class="input-wrapper">
+                    <input
+                        type="text"
+                        id="question-input"
+                        placeholder="Ask a question about your datasheets..."
+                        maxlength="1000"
+                        autocomplete="off"
+                    >
+                    <button id="btn-send" class="btn-send" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                            <line x1="22" y1="2" x2="11" y2="13"/>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="input-footer">
+                    <span class="footer-text">Powered by NVIDIA NIM · Gemini fallback · Answers grounded in your documents</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ── Toast Container ─────────────────────────────── -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

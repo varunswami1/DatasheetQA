@@ -1,0 +1,35 @@
+# Environment variables / API keys
+.env
+.env.*
+
+# Keep the example config
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Generated indexes / cache
+indices/
+*.faiss
+*.pkl
+*.pickle
+
+# Uploaded PDFs / user files
+uploads/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
