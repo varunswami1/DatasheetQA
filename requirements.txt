@@ -1,9 +1,11 @@
 # DatasheetQA — Python Dependencies
 
 flask>=3.0.0
-openai>=1.0.0          # NVIDIA NIM uses an OpenAI-compatible API
-google-genai>=1.0.0    # Gemini fallback
+gunicorn>=22.0.0        # production WSGI server (required for Render/Railway)
+openai>=1.0.0           # NVIDIA NIM uses an OpenAI-compatible API
+google-genai>=1.0.0     # Gemini fallback
 PyMuPDF>=1.24.0
 pdfplumber>=0.11.0
 faiss-cpu>=1.8.0
 numpy>=1.24.0
+python-dotenv>=1.0.0

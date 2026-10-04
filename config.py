@@ -94,16 +94,24 @@ class AppConfig:
     nvidia: NvidiaConfig = field(default_factory=NvidiaConfig)          # primary
     generation: GenerationConfig = field(default_factory=GenerationConfig)  # fallback
 
-    # File storage
-    upload_folder: str = "uploads"
-    index_folder: str = "indices"
+    # File storage — uses /data (Render persistent disk) in production,
+    # falls back to local relative paths for local development
+    _data_root: str = field(
+        default_factory=lambda: "/data" if Path("/data").exists() else "."
+    )
+    upload_folder: str = field(
+        default_factory=lambda: str(Path("/data/uploads") if Path("/data").exists() else Path("uploads"))
+    )
+    index_folder: str = field(
+        default_factory=lambda: str(Path("/data/indices") if Path("/data").exists() else Path("indices"))
+    )
     max_file_size_mb: int = 20
     allowed_extensions: tuple = (".pdf",)
 
-    # Server
+    # Server — debug off in production (gunicorn sets PORT env var on Render)
     host: str = "0.0.0.0"
-    port: int = 5000
-    debug: bool = True
+    port: int = field(default_factory=lambda: int(os.environ.get("PORT", 5000)))
+    debug: bool = field(default_factory=lambda: os.environ.get("RENDER") is None)
 
 
 # Singleton config instance
