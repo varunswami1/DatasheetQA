@@ -19,6 +19,7 @@ import httpx
 from openai import OpenAI
 
 from google import genai
+from google.genai import types
 
 from config import config
 from vector_store import VectorStore
@@ -129,12 +130,12 @@ class RAGPipeline:
         response = self._gemini_client.models.generate_content(
             model=self.gemini_cfg.model_name,
             contents=prompt,
-            config={
-                "system_instruction": SYSTEM_MESSAGE,
-                "temperature": self.gemini_cfg.temperature,
-                "max_output_tokens": self.gemini_cfg.max_output_tokens,
-                "top_p": self.gemini_cfg.top_p,
-            },
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_MESSAGE,
+                temperature=self.gemini_cfg.temperature,
+                max_output_tokens=self.gemini_cfg.max_output_tokens,
+                top_p=self.gemini_cfg.top_p,
+            ),
         )
         return response.text
 
