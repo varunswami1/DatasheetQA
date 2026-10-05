@@ -145,22 +145,29 @@ class RAGPipeline:
 
     def _generate(self, prompt: str, force_json: bool = False) -> tuple[str, str]:
         """
-        Generate text using NVIDIA NIM as primary, Gemini as fallback.
+        Generate text using Gemini as primary, NVIDIA NIM as fallback.
         Returns: (generated_text, provider_used)
         """
+        # ── Try Gemini first (better at synthesis, all question types) ────────
+        if self._gemini_client:
+            try:
+                text = self._generate_gemini(prompt)
+                return text, PROVIDER_GEMINI
+            except Exception as e:
+                logger.warning(
+                    f"Gemini generation failed ({type(e).__name__}: {e}). "
+                    "Falling back to NVIDIA NIM…"
+                )
+
+        # ── Fall back to NVIDIA NIM ───────────────────────────────────────────
         if self._nvidia_client:
             try:
                 text = self._generate_nvidia(prompt, force_json=force_json)
                 return text, PROVIDER_NVIDIA
             except Exception as e:
                 logger.warning(
-                    f"NVIDIA NIM generation failed ({type(e).__name__}: {e}). "
-                    "Falling back to Gemini…"
+                    f"NVIDIA NIM generation also failed ({type(e).__name__}: {e})."
                 )
-
-        if self._gemini_client:
-            text = self._generate_gemini(prompt)
-            return text, PROVIDER_GEMINI
 
         raise RuntimeError(
             "All LLM providers unavailable. "
