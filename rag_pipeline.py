@@ -293,12 +293,16 @@ class RAGPipeline:
     # ── JSON helpers ─────────────────────────────────────────────────────────
 
     def _parse_json_response(self, raw_text: str) -> dict:
-        """Extract and parse JSON from the LLM's response."""
+        """Extract and parse JSON from the LLM's response.
+        Handles models that embed literal newlines inside JSON strings.
+        """
+        # ── Attempt 1: direct parse ──────────────────────────────────────────
         try:
             return json.loads(raw_text)
         except json.JSONDecodeError:
             pass
 
+        # ── Attempt 2: extract from markdown code fence ──────────────────────
         json_match = re.search(r"```(?:json)?\s*\n?(.*?)\n?```", raw_text, re.DOTALL)
         if json_match:
             try:
@@ -306,11 +310,26 @@ class RAGPipeline:
             except json.JSONDecodeError:
                 pass
 
+        # ── Attempt 3: extract brace block ───────────────────────────────────
         brace_start = raw_text.find("{")
         brace_end   = raw_text.rfind("}") + 1
         if brace_start != -1 and brace_end > brace_start:
+            candidate = raw_text[brace_start:brace_end]
             try:
-                return json.loads(raw_text[brace_start:brace_end])
+                return json.loads(candidate)
+            except json.JSONDecodeError:
+                pass
+
+            # ── Attempt 4: sanitize unescaped newlines inside string values ──
+            # Replace literal newlines that appear inside JSON strings with \n
+            sanitized = re.sub(
+                r'("(?:[^"\\]|\\.)*")',
+                lambda m: m.group(0).replace("\n", "\\n").replace("\r", ""),
+                candidate,
+                flags=re.DOTALL,
+            )
+            try:
+                return json.loads(sanitized)
             except json.JSONDecodeError:
                 pass
 
