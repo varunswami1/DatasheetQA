@@ -1,6 +1,47 @@
+# MUJ-DS-23FE10CDS00449
+
+| Field | Details |
+|---|---|
+| Name | Varun Swami |
+| Registration Number | 23FE10CDS00449 |
+| Branch | Data Science and Engineering |
+| Batch | F |
+| Project Title | DatasheetQA – AI-Powered Datasheet Intelligence |
+| GitHub Username | varunswami1 |
+| Training Program | NLP Project |
+
+---
+
 # DatasheetQA — AI-Powered Datasheet Intelligence
 
 A **Retrieval-Augmented Generation (RAG)** web application that lets you upload solar panel, inverter, or battery datasheets (PDF) and ask questions in plain English. Get precise, cited answers grounded in your documents.
+
+## Repository Structure
+
+```
+MUJ-DS-23FE10CDS00449/
+├── README.md
+├── assignments/        # Training assignments
+├── notebooks/          # Jupyter notebooks
+├── code/               # Practice code
+├── resources/          # Screenshots, results, references
+├── presentations/      # Project presentation
+└── capstone/           # DatasheetQA project (individual capstone)
+    ├── app.py              # Flask server & API routes
+    ├── rag_pipeline.py     # RAG orchestration (retrieval + generation)
+    ├── vector_store.py     # FAISS vector store management
+    ├── pdf_processor.py    # PDF parsing & text chunking
+    ├── prompts.py          # LLM prompt templates
+    ├── config.py           # All tunable configuration parameters
+    ├── evaluate.py         # Evaluation utilities
+    ├── requirements.txt    # Python dependencies
+    ├── .env.example        # Environment variable template
+    ├── templates/
+    │   └── index.html      # Frontend UI (Jinja2)
+    └── static/
+        ├── style.css       # UI styles
+        └── app.js          # Frontend JavaScript
+```
 
 ## Architecture
 
@@ -51,8 +92,8 @@ DatasheetQA/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/varunswami1/DatasheetQA.git
-cd DatasheetQA
+git clone https://github.com/varunswami1/MUJ-DS-23FE10CDS00449.git
+cd MUJ-DS-23FE10CDS00449/capstone
 ```
 
 ### 2. Create a virtual environment
@@ -89,7 +130,7 @@ Open your browser at **http://localhost:5000**
 
 ## Configuration
 
-All parameters are centralized in [`config.py`](config.py):
+All parameters are centralized in [`capstone/config.py`](capstone/config.py):
 
 | Parameter | Actual Value | Description |
 |-----------|-------------|-------------|
