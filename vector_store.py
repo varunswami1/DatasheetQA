@@ -1,7 +1,7 @@
 """
 Vector store module for DatasheetQA.
 
-Manages document embeddings using Google Gemini's embedding API
+Manages document embeddings using NVIDIA NIM's nemotron-embed API
 and FAISS for efficient similarity search.
 """
 
@@ -12,7 +12,9 @@ import logging
 from typing import Optional
 
 import numpy as np
+# pyrefly: ignore [missing-import]
 import faiss
+# pyrefly: ignore [missing-import]
 from openai import OpenAI
 
 from config import config
@@ -22,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 class VectorStore:
     """
-    FAISS-backed vector store with Gemini embeddings.
+    FAISS-backed vector store with NVIDIA NIM embeddings (nemotron-embed).
 
     Stores document chunks as dense vectors and supports
     similarity search with metadata retrieval.

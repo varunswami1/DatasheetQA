@@ -46,7 +46,7 @@ class RetrievalConfig:
     """Configuration for vector search and retrieval."""
     top_k: int = 7                     # number of chunks to retrieve (more = better recall)
     similarity_threshold: float = 0.25  # lowered for denser technical docs
-    rerank: bool = True                 # whether to use LLM-based reranking
+    rerank: bool = False                # placeholder — reranking not yet implemented
 
 
 @dataclass

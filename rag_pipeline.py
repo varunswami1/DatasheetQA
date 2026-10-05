@@ -5,8 +5,8 @@ Orchestrates query rewriting, retrieval, context assembly,
 LLM generation, and response validation.
 
 LLM Strategy:
-  Primary  → NVIDIA NIM  (meta/llama-3.3-70b-instruct via integrate.api.nvidia.com)
-  Fallback → Google Gemini (auto-activated when NVIDIA is unavailable or errors out)
+  Primary  → Google Gemini 3.8 flash (better synthesis for all question types)
+  Fallback → NVIDIA NIM  (meta/llama-3.2-11b-vision-instruct via integrate.api.nvidia.com)
 """
 
 import json
@@ -16,9 +16,11 @@ from typing import Optional
 
 # NVIDIA NIM uses an OpenAI-compatible endpoint
 import httpx
+# pyrefly: ignore [missing-import]
 from openai import OpenAI
 
 from google import genai
+# pyrefly: ignore [missing-import]
 from google.genai import types
 
 from config import config

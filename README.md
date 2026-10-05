@@ -7,24 +7,24 @@ A **Retrieval-Augmented Generation (RAG)** web application that lets you upload 
 ```
 PDF Upload → Chunking → Embeddings (NVIDIA nemotron-embed) → FAISS Index
                                                                     ↓
-User Query → Query Embedding → Vector Search → Top-K Chunks → LLM (NVIDIA NIM)
+User Query → Query Embedding → Vector Search → Top-K Chunks → LLM (Gemini / NVIDIA)
                                                                     ↓
                                                           Answer + Citations
 ```
 
-**Primary LLM:** `meta/llama-4-scout-17b-16e-instruct` via NVIDIA NIM  
-**Fallback LLM:** Google Gemini  
+**Primary LLM:** `gemini-3.8-flash` via Google Gemini API  
+**Fallback LLM:** `meta/llama-3.2-11b-vision-instruct` via NVIDIA NIM  
 **Embeddings:** `nvidia/nemotron-3-embed-1b` via NVIDIA NIM  
 **Vector Store:** FAISS (local, in-memory)
 
 ## Features
 
 - 📄 Upload multiple PDF datasheets
-- 🔍 Semantic search over document content
+- 🔍 Semantic search over document content (FAISS)
 - 🤖 LLM-powered answers with page-level citations
-- ⚡ Fast inference via NVIDIA NIM hosted endpoints
-- 🔄 Automatic Gemini fallback if NVIDIA is unavailable
+- 🔄 Automatic NVIDIA NIM fallback if Gemini is unavailable
 - 💬 Chat-style interface with conversation history
+- 🌐 Deployed live on Render
 
 ## Project Structure
 
@@ -32,17 +32,18 @@ User Query → Query Embedding → Vector Search → Top-K Chunks → LLM (NVIDI
 DatasheetQA/
 ├── app.py              # Flask server & API routes
 ├── rag_pipeline.py     # RAG orchestration (retrieval + generation)
-├── vector_store.py     # FAISS vector store management
+├── vector_store.py     # FAISS vector store with NVIDIA NIM embeddings
 ├── pdf_processor.py    # PDF parsing & text chunking
 ├── prompts.py          # LLM prompt templates
 ├── config.py           # All tunable configuration parameters
-├── evaluate.py         # Evaluation utilities
+├── evaluate.py         # Evaluation module (keyword hit-rate metrics)
 ├── requirements.txt    # Python dependencies
+├── render.yaml         # Render deployment config
 ├── .env.example        # Environment variable template
 ├── templates/
 │   └── index.html      # Frontend UI (Jinja2)
 └── static/
-    ├── style.css        # UI styles
+    ├── style.css        # UI styles (WallWidgy-inspired dark theme)
     └── app.js           # Frontend JavaScript
 ```
 
@@ -76,8 +77,8 @@ GEMINI_API_KEY=AIza...
 ```
 
 Get your keys:
-- **NVIDIA NIM:** https://build.nvidia.com → top-right → Get API Key
 - **Gemini:** https://aistudio.google.com/app/apikey
+- **NVIDIA NIM:** https://build.nvidia.com → top-right → Get API Key
 
 ### 5. Run the application
 ```bash
@@ -90,23 +91,43 @@ Open your browser at **http://localhost:5000**
 
 All parameters are centralized in [`config.py`](config.py):
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `model_name` | `meta/llama-4-scout-17b-16e-instruct` | Primary LLM |
-| `temperature` | `0.2` | Generation temperature |
-| `max_tokens` | `1024` | Max response tokens |
-| `chunk_size` | `800` | Characters per chunk |
-| `top_k` | `5` | Retrieved chunks per query |
-| `similarity_threshold` | `0.35` | Minimum cosine similarity |
+| Parameter | Actual Value | Description |
+|-----------|-------------|-------------|
+| Primary LLM | `gemini-3.8-flash` | Main answer generation model |
+| Fallback LLM | `meta/llama-3.2-11b-vision-instruct` | NVIDIA NIM fallback |
+| `temperature` | `0.2` | Lower = more precise/factual answers |
+| `max_tokens` | `1024` | Max response length |
+| `chunk_size` | `800` | Characters per document chunk |
+| `chunk_overlap` | `150` | Overlap between adjacent chunks |
+| `top_k` | `7` | Chunks retrieved per query |
+| `similarity_threshold` | `0.25` | Minimum cosine similarity for retrieval |
+
+## Evaluation
+
+Run the built-in evaluation suite against a ground-truth question set:
+
+```bash
+python evaluate.py
+```
+
+Outputs per-question keyword hit-rate, latency, confidence, and provider used. Report saved to `eval_report.json`.
+
+## Live Demo
+
+🌐 **[https://datasheetqa.onrender.com](https://datasheetqa.onrender.com)**
+
+> Note: Free-tier Render instances spin down after inactivity — first request may take ~30s to wake up.
 
 ## Technologies Used
 
-- **Backend:** Python, Flask
-- **LLM:** NVIDIA NIM (Meta Llama 4 Scout), Google Gemini
-- **Embeddings:** NVIDIA nemotron-embed via NIM
+- **Backend:** Python 3, Flask, Gunicorn
+- **Primary LLM:** Google Gemini 3.8 flash
+- **Fallback LLM:** NVIDIA NIM (Meta Llama 3.2 11B Vision)
+- **Embeddings:** NVIDIA NIM nemotron-3-embed-1b
 - **Vector Search:** FAISS
-- **PDF Parsing:** PyMuPDF (fitz)
-- **Frontend:** HTML, CSS (Vanilla), JavaScript
+- **PDF Parsing:** PyMuPDF (fitz), pdfplumber
+- **Frontend:** HTML5, Vanilla CSS, JavaScript
+- **Deployment:** Render (free tier, persistent disk)
 
 ## License
 
