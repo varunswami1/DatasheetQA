@@ -53,13 +53,12 @@ class RetrievalConfig:
 class NvidiaConfig:
     """Configuration for the NVIDIA NIM primary LLM."""
     base_url: str = "https://integrate.api.nvidia.com/v1"
-    # Available models on NVIDIA NIM (build.nvidia.com):
-    #   meta/llama-4-scout-17b-16e-instruct    ← PRIMARY: very fast, great for RAG Q&A
-    #   meta/llama-3.3-70b-instruct            ← higher quality, still fast on NIM
-    #   meta/llama-3.1-8b-instruct             ← fastest, lower quality
-    #   nvidia/nemotron-3-super-120b-a12b      ← high quality but very slow (~2 min)
-    #   deepseek-ai/deepseek-v4.1-flash        ← slow cold-start, skip
-    model_name: str = "meta/llama-4-scout-17b-16e-instruct"
+    # Confirmed working models on THIS account (tested 2026-10):
+    #   meta/llama-3.2-11b-vision-instruct    ← PRIMARY: ~3.2s, confirmed ✅
+    #   nvidia/nemotron-3.5-lightning-30b-a3b  ← also works, ~4s ✅
+    #   deepseek-ai/deepseek-v4.1-flash        ← works but slow cold start
+    #   nvidia/nemotron-3-super-120b-a12b      ← very slow (~2 min)
+    model_name: str = "meta/llama-3.2-11b-vision-instruct"
     temperature: float = 0.2      # lower = more precise factual answers from datasheets
     max_tokens: int = 1024
     top_p: float = 0.95
