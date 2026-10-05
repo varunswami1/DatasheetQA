@@ -85,18 +85,12 @@ class RAGPipeline:
 
     # ── Low-level generation helpers ─────────────────────────────────────────
 
-    def _generate_nvidia(self, prompt: str) -> str:
-        """Generate text using the NVIDIA NIM API (OpenAI-compatible).
-
-        Handles both standard and reasoning models:
-        - Standard models: response in message.content
-        - Reasoning models (e.g. DeepSeek): response in message.reasoning_content
-          with message.content sometimes being None
-        """
+    def _generate_nvidia(self, prompt: str, force_json: bool = False) -> str:
+        """Generate text using the NVIDIA NIM API (OpenAI-compatible)."""
         if not self._nvidia_client:
             raise RuntimeError("NVIDIA NIM client not initialized (missing API key).")
 
-        response = self._nvidia_client.chat.completions.create(
+        kwargs = dict(
             model=self.nvidia_cfg.model_name,
             messages=[
                 {"role": "system", "content": SYSTEM_MESSAGE},
@@ -106,20 +100,30 @@ class RAGPipeline:
             max_tokens=self.nvidia_cfg.max_tokens,
             top_p=self.nvidia_cfg.top_p,
         )
-        msg = response.choices[0].message
 
-        # Standard content field
+        # Force JSON output mode when needed (prevents markdown-wrapped responses)
+        if force_json:
+            kwargs["response_format"] = {"type": "json_object"}
+
+        try:
+            response = self._nvidia_client.chat.completions.create(**kwargs)
+        except Exception as e:
+            # If json_object mode not supported, retry without it
+            if force_json and ("response_format" in str(e) or "json" in str(e).lower()):
+                logger.warning("JSON mode not supported, retrying without it.")
+                kwargs.pop("response_format", None)
+                response = self._nvidia_client.chat.completions.create(**kwargs)
+            else:
+                raise
+
+        msg = response.choices[0].message
         if msg.content:
             return msg.content
-
-        # DeepSeek / reasoning model: output is in reasoning_content
         reasoning = getattr(msg, "reasoning_content", None)
         if reasoning:
             return reasoning
-
         raise RuntimeError(
-            f"NVIDIA NIM returned empty response from {self.nvidia_cfg.model_name}. "
-            f"message={msg}"
+            f"NVIDIA NIM returned empty response from {self.nvidia_cfg.model_name}."
         )
 
     def _generate_gemini(self, prompt: str) -> str:
@@ -139,18 +143,14 @@ class RAGPipeline:
         )
         return response.text
 
-    def _generate(self, prompt: str) -> tuple[str, str]:
+    def _generate(self, prompt: str, force_json: bool = False) -> tuple[str, str]:
         """
         Generate text using NVIDIA NIM as primary, Gemini as fallback.
-
-        Returns:
-            (generated_text, provider_used)   where provider_used is
-            PROVIDER_NVIDIA or PROVIDER_GEMINI.
+        Returns: (generated_text, provider_used)
         """
-        # ── Try NVIDIA first ──────────────────────────────────────────────
         if self._nvidia_client:
             try:
-                text = self._generate_nvidia(prompt)
+                text = self._generate_nvidia(prompt, force_json=force_json)
                 return text, PROVIDER_NVIDIA
             except Exception as e:
                 logger.warning(
@@ -158,7 +158,6 @@ class RAGPipeline:
                     "Falling back to Gemini…"
                 )
 
-        # ── Fall back to Gemini ───────────────────────────────────────────
         if self._gemini_client:
             text = self._generate_gemini(prompt)
             return text, PROVIDER_GEMINI
@@ -255,7 +254,7 @@ class RAGPipeline:
 
         for attempt in range(max_attempts):
             try:
-                raw_text, provider_used = self._generate(prompt)
+                raw_text, provider_used = self._generate(prompt, force_json=True)
                 raw_text = raw_text.strip()
 
                 parsed = self._parse_json_response(raw_text)
