@@ -4,7 +4,7 @@
 |---|---|
 | Name | Varun Swami |
 | Registration Number | 23FE10CDS00449 |
-| Branch | Data Science and Engineering |
+| Branch | Data Science |
 | Batch | F |
 | Project Title | DatasheetQA – AI-Powered Datasheet Intelligence |
 | GitHub Username | varunswami1 |
